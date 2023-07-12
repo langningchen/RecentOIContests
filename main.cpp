@@ -449,13 +449,13 @@ void NowCoder()
 void LeetCode()
 {
     GetDataToFile("https://leetcode.cn/contest/");
-    string CSRF = GetStringBetween(GetDataFromFileToString("Header.tmp"), "csrftoken=", ";");
+    string CSRF = GetStringBetween(GetDataFromFileToString(), "csrftoken=", ";");
     curl_slist *HeaderList = NULL;
     HeaderList = curl_slist_append(HeaderList, ("x-csrftoken: " + CSRF).c_str());
     HeaderList = curl_slist_append(HeaderList, "referer: https://leetcode.cn/contest/");
     GetDataToFile("https://leetcode.cn/graphql",
-                  "Header.tmp",
-                  "Body.tmp",
+                  "",
+                  "",
                   true,
                   R"({"operationName":null,"variables":{},"query":"{\n  contestUpcomingContests {\n    containsPremium\n    title\n    cardImg\n    titleSlug\n    description\n    startTime\n    duration\n    originStartTime\n    isVirtual\n    isLightCardFontColor\n    company {\n      watermark\n      __typename\n    }\n    __typename\n  }\n}\n"})",
                   HeaderList);
@@ -474,8 +474,8 @@ void LeetCode()
         Contests.push_back(Temp);
     }
     GetDataToFile("https://leetcode.cn/graphql",
-                  "Header.tmp",
-                  "Body.tmp",
+                  "",
+                  "",
                   true,
                   R"({"operationName":"contestHistory","variables":{"pageNum":1,"pageSize":10},"query":"query contestHistory($pageNum: Int!, $pageSize: Int) {\n  contestHistory(pageNum: $pageNum, pageSize: $pageSize) {\n    totalNum\n    contests {\n      containsPremium\n      title\n      cardImg\n      titleSlug\n      description\n      startTime\n      duration\n      originStartTime\n      isVirtual\n      company {\n        watermark\n        __typename\n      }\n      isEeExamContest\n      __typename\n    }\n    __typename\n  }\n}\n"})",
                   HeaderList);
@@ -509,22 +509,33 @@ int main()
     sort(Contests.begin(), Contests.end(),
          [](const CONTEST &a, const CONTEST &b) -> bool
          {
-             if (a.StartTime == b.StartTime)
-                 return a.EndTime < b.EndTime;
-             return a.StartTime < b.StartTime;
+             //  if (a.StartTime == b.StartTime)
+             //      return a.EndTime < b.EndTime;
+             //  return a.StartTime < b.StartTime;
+             return a.Name < b.Name;
          });
-    json JSON;
-    for (auto i : Contests)
-        JSON.push_back(json(
-            {{"Name", i.Name},
-             {"URL", i.URL},
-             {"Description", i.Description},
-             {"StartTime", i.StartTime},
-             {"EndTime", i.EndTime},
-             {"Type", (int)i.Type},
-             {"Status", (int)i.Status},
-             {"Origin", (int)i.Origin}}));
-    SetDataFromStringToFile("Contests.json", JSON.dump());
+    for (size_t i = 0; i < Contests.size(); i++)
+    {
+        if (Contests[i].Status == CONTEST::STATUS::ENDED)
+            continue;
+        if (Contests[i].Status == CONTEST::STATUS::NOT_STARTED)
+            cout << "\033[32m";
+        else
+            cout << "\033[33m";
+        cout << Contests[i].Name << " " << Contests[i].StartTime << "~" << Contests[i].EndTime << " " << Contests[i].URL << "\033[0m" << endl;
+    }
+    // json JSON;
+    // for (auto i : Contests)
+    //     JSON.push_back(json(
+    //         {{"Name", i.Name},
+    //          {"URL", i.URL},
+    //          {"Description", i.Description},
+    //          {"StartTime", i.StartTime},
+    //          {"EndTime", i.EndTime},
+    //          {"Type", (int)i.Type},
+    //          {"Status", (int)i.Status},
+    //          {"Origin", (int)i.Origin}}));
+    // SetDataFromStringToFile("RecentOIContests/Contests.json", JSON.dump());
     CLN_CATCH
     return 0;
 }
