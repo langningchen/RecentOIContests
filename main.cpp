@@ -495,6 +495,29 @@ void LeetCode()
     }
 }
 
+string TimestampToString(time_t TimeStamp)
+{
+    struct tm *Time = localtime(&TimeStamp);
+    string Return = "";
+    Return += to_string(Time->tm_year + 1900) + "-";
+    if (Time->tm_mon + 1 < 10)
+        Return += "0";
+    Return += to_string(Time->tm_mon + 1) + "-";
+    if (Time->tm_mday < 10)
+        Return += "0";
+    Return += to_string(Time->tm_mday) + " ";
+    if (Time->tm_hour < 10)
+        Return += "0";
+    Return += to_string(Time->tm_hour) + ":";
+    if (Time->tm_min < 10)
+        Return += "0";
+    Return += to_string(Time->tm_min) + ":";
+    if (Time->tm_sec < 10)
+        Return += "0";
+    Return += to_string(Time->tm_sec);
+    return Return;
+}
+
 int main()
 {
     CLN_TRY
@@ -509,33 +532,69 @@ int main()
     sort(Contests.begin(), Contests.end(),
          [](const CONTEST &a, const CONTEST &b) -> bool
          {
-             //  if (a.StartTime == b.StartTime)
-             //      return a.EndTime < b.EndTime;
-             //  return a.StartTime < b.StartTime;
+             if (a.StartTime == b.StartTime)
+                 return a.EndTime < b.EndTime;
+             return a.StartTime < b.StartTime;
              return a.Name < b.Name;
          });
     for (size_t i = 0; i < Contests.size(); i++)
     {
-        if (Contests[i].Status == CONTEST::STATUS::ENDED)
-            continue;
+        if (Contests[i].Origin == CONTEST::ORIGIN::_51NOD_WEB)
+            cout << "\033[40m51Nod     ";
+        else if (Contests[i].Origin == CONTEST::ORIGIN::ATCODER_WEB)
+            cout << "\033[41mAtCoder   ";
+        else if (Contests[i].Origin == CONTEST::ORIGIN::CODEFORCES_WEB)
+            cout << "\033[42mCodeForces";
+        else if (Contests[i].Origin == CONTEST::ORIGIN::LUOGU_WEB)
+            cout << "\033[43m洛谷      ";
+        else if (Contests[i].Origin == CONTEST::ORIGIN::NOW_CODER_WEB)
+            cout << "\033[44m牛客      ";
+        else if (Contests[i].Origin == CONTEST::ORIGIN::CODE_CHEF_WEB)
+            cout << "\033[45mCodeChef  ";
+        else if (Contests[i].Origin == CONTEST::ORIGIN::LEET_CODE_WEB)
+            cout << "\033[46m力扣      ";
+        else if (Contests[i].Origin == CONTEST::ORIGIN::USACO_WEB)
+            cout << "\033[47mUSACO     ";
+        cout << "\033[0m\t";
+        if (Contests[i].Type == CONTEST::TYPE::ACM)
+            cout << "\033[31m[ACM]       ";
+        else if (Contests[i].Type == CONTEST::TYPE::NOI)
+            cout << "\033[32m[NOI]       ";
+        else if (Contests[i].Type == CONTEST::TYPE::IOI)
+            cout << "\033[33m[IOI]       ";
+        else if (Contests[i].Type == CONTEST::TYPE::LE_DUO)
+            cout << "\033[34m[乐多]      ";
+        else if (Contests[i].Type == CONTEST::TYPE::CODEFORCES)
+            cout << "\033[35m[CodeForces]";
+        else if (Contests[i].Type == CONTEST::TYPE::_51NOD)
+            cout << "\033[36m[51Nod]     ";
+        else if (Contests[i].Type == CONTEST::TYPE::UNKNOWN)
+            cout << "\033[30m[未知]      ";
+        cout << "\033[0m\t";
         if (Contests[i].Status == CONTEST::STATUS::NOT_STARTED)
-            cout << "\033[32m";
-        else
-            cout << "\033[33m";
-        cout << Contests[i].Name << " " << Contests[i].StartTime << "~" << Contests[i].EndTime << " " << Contests[i].URL << "\033[0m" << endl;
+            cout << "\033[32m未开始";
+        else if (Contests[i].Status == CONTEST::STATUS::RUNNING)
+            cout << "\033[33m进行中";
+        else if (Contests[i].Status == CONTEST::STATUS::ENDED)
+            cout << "\033[31m已结束";
+        else if (Contests[i].Status == CONTEST::STATUS::PRACTICE)
+            cout << "\033[34m练习赛";
+        else if (Contests[i].Status == CONTEST::STATUS::PERMANENT)
+            cout << "\033[35m永久赛";
+        cout << "\t" << TimestampToString(Contests[i].StartTime) << " ~ " << TimestampToString(Contests[i].EndTime) << "\t" << Contests[i].Name << "\033[0m   " << Contests[i].URL << endl;
     }
-    // json JSON;
-    // for (auto i : Contests)
-    //     JSON.push_back(json(
-    //         {{"Name", i.Name},
-    //          {"URL", i.URL},
-    //          {"Description", i.Description},
-    //          {"StartTime", i.StartTime},
-    //          {"EndTime", i.EndTime},
-    //          {"Type", (int)i.Type},
-    //          {"Status", (int)i.Status},
-    //          {"Origin", (int)i.Origin}}));
-    // SetDataFromStringToFile("RecentOIContests/Contests.json", JSON.dump());
+    json JSON;
+    for (auto i : Contests)
+        JSON.push_back(json(
+            {{"Name", i.Name},
+             {"URL", i.URL},
+             {"Description", i.Description},
+             {"StartTime", i.StartTime},
+             {"EndTime", i.EndTime},
+             {"Type", (int)i.Type},
+             {"Status", (int)i.Status},
+             {"Origin", (int)i.Origin}}));
+    SetDataFromStringToFile("Contests.json", JSON.dump());
     CLN_CATCH
     return 0;
 }
