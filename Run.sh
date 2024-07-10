@@ -1,4 +1,4 @@
 #!/bin/fish
-cmake -B build
-cmake --build build
-./build/main
+cmake -B Build
+cmake --build Build
+./Build/RecentOIContests

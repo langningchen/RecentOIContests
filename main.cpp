@@ -123,7 +123,7 @@ int MonthStringToMonth(string Input)
 
 void _51nod()
 {
-    GetDataToFile("https://www.51nod.com/Contest/ContestList");
+    GetDataToFile("https://www.51nod.com/Api/Contest/ContestList");
     json Data = json::parse(GetDataFromFileToString());
     for (auto i : Data["ContestViews"])
     {
